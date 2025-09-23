@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
+// Middleware xác thực JWT
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token)
@@ -13,3 +14,13 @@ module.exports = (req, res, next) => {
     res.status(401).json({ error: "Token is not valid" });
   }
 };
+
+// Middleware kiểm tra quyền admin
+const isAdmin = (req, res, next) => {
+  if (!req.user || !req.user.isAdmin) {
+    return res.status(403).json({ error: "Admin only" });
+  }
+  next();
+};
+
+module.exports = { verifyToken, isAdmin };
