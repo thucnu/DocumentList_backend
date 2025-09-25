@@ -6,7 +6,14 @@ exports.listAttendees = async (req, res) => {
     const { full_name } = req.query;
     let query = {};
     if (full_name) {
-      query.full_name = { $regex: full_name, $options: "i" };
+      const words = full_name.trim().split(/\s+/).filter(Boolean);
+      if (words.length > 1) {
+        query.$and = words.map((w) => ({
+          full_name: { $regex: w, $options: "i" },
+        }));
+      } else {
+        query.full_name = { $regex: full_name.trim(), $options: "i" };
+      }
     }
     const attendees = await Attendee.find(query).sort({ full_name: 1 });
     // Format date_of_birth to dd/MM/yyyy

@@ -29,11 +29,12 @@ router.post(
     try {
       const { group, name } = req.body;
       if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+      const file = req.file;
       const doc = new Document({
         name,
         group,
-        path: req.file.path,
-        originalName: req.file.originalname,
+        path: file.path,
+        originalName: file.originalname,
         owner: req.user.userId,
       });
       await doc.save();
