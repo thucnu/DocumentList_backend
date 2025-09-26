@@ -2,7 +2,12 @@ const Document = require("../models/Document");
 
 exports.createDocument = async (req, res) => {
   try {
-    const doc = new Document({ ...req.body, owner: req.user.userId });
+    let data = { ...req.body, owner: req.user.userId };
+    if (data.path) {
+      const filename = data.path.split("/").pop().split("\\").pop();
+      data.path = `uploads/${filename}`;
+    }
+    const doc = new Document(data);
     await doc.save();
     res.status(201).json(doc);
   } catch (err) {

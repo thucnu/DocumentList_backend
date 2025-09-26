@@ -11,16 +11,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/files", require("./routes/documentRoutes"));
 app.use("/api/attendees", require("./routes/attendeeRoutes"));
 
-// Serve static React build
 const buildPath = path.join(__dirname, "../frontend/build");
 app.use(express.static(buildPath));
 
-// Catch-all: return index.html for all non-API routes (using regex)
 app.get(/.*/, (req, res) => {
   if (req.originalUrl.startsWith("/api/")) {
     return res.status(404).json({ error: "Not found" });
