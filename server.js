@@ -1,7 +1,8 @@
+const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const connectDB = require("./src/config/db");
+const path = require("path");
 
 dotenv.config();
 connectDB();
@@ -14,6 +15,18 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/files", require("./routes/documentRoutes"));
 app.use("/api/attendees", require("./routes/attendeeRoutes"));
+
+// Serve static React build
+const buildPath = path.join(__dirname, "../frontend/build");
+app.use(express.static(buildPath));
+
+// Catch-all: return index.html for all non-API routes (using regex)
+app.get(/.*/, (req, res) => {
+  if (req.originalUrl.startsWith("/api/")) {
+    return res.status(404).json({ error: "Not found" });
+  }
+  res.sendFile(path.join(buildPath, "index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
